@@ -23,7 +23,8 @@ module mest_pro#(
     output o_valid_result,
     output o_carry,
     output o_zero_flag,
-    output o_all_done
+    output o_all_done,
+    output o_display
 );
 
 wire exec_done;
@@ -41,6 +42,12 @@ wire [8-1 :0] operand_a;
 wire [8-1 :0] operand_b; 
 wire jump;
 wire return_pc;
+
+
+// Local Global Registers
+reg [ `OUTPUT_SIZE - 1:0 ] output_buffer;
+reg output_enable; 
+reg [ `DATA_BITS-1:0 ] REGA;
 
 assign o_valid_result = exec_done;
 
@@ -105,7 +112,30 @@ u_mest_pro_exec(
     .o_zero_flag   (o_zero_flag  ),
     .o_jump        (jump         ),
     .o_return_pc   (return_pc    ),
-    .o_end_of_code (end_of_code  )
+    .o_output_enable( output_enable),
+    .o_end_of_code (end_of_code  ),
+    .o_rega ( REGA )
+);
+
+// This is borked
+TOP_MESTProMem3 my_mest_pro_memory
+(
+    .CLK            (clk            ),
+    .addr           (o_prog_counter ),
+    .in_dat         (data2store     ), //needs new wire
+    .WE             (WE           ),
+    .CS             (CS           ),
+    .RESET          (RESET        ),
+    .o_dat          (i_instruction  ), // needs new wire/reg?
+    .ERROR          (ERROR)
+);
+
+mest_pro_output u_mest_pro_output(
+    .clk( clk ),
+    .i_output_enable_(output_enable),
+    .i_mem_val( output_buffer ),
+    .o_display( o_display )
+    
 );
 
 endmodule

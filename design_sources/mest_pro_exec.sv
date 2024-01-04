@@ -15,12 +15,13 @@ module mest_pro_exec(
     output reg o_jump,
     output reg o_return_pc,
     output reg o_end_of_code,
-    output reg o_rega
+    output reg o_output_enable,
+    output reg [ `OUTPUT_SIZE - 1: 0] o_output, 
+    output reg[ `DATA_BITS-1:0] o_rega
+    // Add stuff for memory //
 );
 
-
 reg [9-1 :0] inter_result;
-reg [ `DATA_BITS-1:0 ] REGA;
 
 always @(*)
 begin
@@ -85,12 +86,22 @@ begin
         o_jump        = 1'd0;
         o_end_of_code = 1'd0;
     end  
-    `OP_MVIA: begin
-        REGA = i_operand1; 
+    `OP_MVI: begin
+        case( i_operand2 )
+            `OUTPUT_REG: o_output = i_operand1 ;
+            `REGA: o_rega = i_operand1 ;
+        endcase
+        
         o_jump        = 1'd0;
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;       
     end
+    `OP_OUTPUT: begin
+        o_output_enable = i_operand1 ? 1'b1 : 1'b0;
+        o_jump        = 1'd0;
+        o_end_of_code = 1'd0;
+        o_return_pc   = 1'b0;
+     end  
     `OP_HALT: begin
         o_end_of_code = 1'd1;
         inter_result  = 8'd0;

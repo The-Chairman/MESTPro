@@ -1,4 +1,4 @@
-module mest_pro_output#(
+module mest_pro_output #(
     MEM_WIDTH = 16
 )(
     input                      clk,
@@ -88,7 +88,8 @@ begin
           begin
             o_display <= 'd0; // clear display when output enable is off
           end
-    endcase
+        endcase
+    end
 end
 
 endmodule

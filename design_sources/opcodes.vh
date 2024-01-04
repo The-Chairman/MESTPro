@@ -11,7 +11,8 @@
 `define OP_NEGOP1 'b00000111
 `define OP_JMP 'b00001000
 `define OP_RET 'b00001001
-`define OP_MVIA 'b00001011
+`define OP_MVI 'b00001011
+`define OP_OUTPUT 'b00001111
 `define OP_HALT 'b11111111
 
 //`define OP_LDAC 'b00000001
