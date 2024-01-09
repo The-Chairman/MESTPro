@@ -22,55 +22,62 @@
 `include "param.vh"
 
 module TOP_MESTProMem3(
-input wire [`ADDR_BITS-1:0] addr,
-input wire [`DATA_BITS-1:0] in_dat,
 input wire CLK,
+input wire [`ADDR_BITS - 1 :0 ] i_prog_counter,
+input wire [`ADDR_BITS - 1:0] addr,
+input wire [`DATA_BITS - 1:0] in_dat,
+
 input wire WE,
 input wire CS,
 input wire RESET,
-output reg [`DATA_BITS-1:0] o_dat,
+input wire i_mm_select,
+output reg [`INSTRUCTION_SIZE-1:0] o_dat,
 output reg ERROR
 );
 
-reg [`DATA_BITS-1:0] mem[`MEM_SIZE-1:0];
+reg [`INSTRUCTION_SIZE-1:0] mem[`MEM_SIZE-1:0];
 integer i;
 
 initial
 begin
 
-o_dat = 8'dz;
+o_dat = `INSTRUCTION_SIZE'dz;
 ERROR = 1'b0;
  for (i=0;i<`MEM_SIZE; i=i+1) begin
-		 mem[i] = 8'd0;
+		 mem[i] = `INSTRUCTION_SIZE'd0;
                 end
 
-$readmemb("prog.txt", mem, 0 , `ROM_SIZE-1); 
+$readmemb("prog2.txt", mem); 
 
 end 
 
-always @(posedge CLK or negedge RESET)
+always @(posedge CLK)
 begin
-if (RESET) begin
-        o_dat = 8'dz;
+    if (RESET) begin
+        o_dat = `INSTRUCTION_SIZE'dz;
         ERROR = 1'b0;
         for (i=`ROM_SIZE;i<`MEM_SIZE; i=i+1) begin 
-		          mem[i] = 8'd0;
-                end	
-	end
-    else begin
-    
-if (CS & WE & (addr>`ROM_SIZE-1)) begin
-       ERROR = 1'b0;
-       mem[addr]= in_dat;           
-       end
-       else if (CS & WE & addr<`ROM_SIZE) begin
-        ERROR = 1'b1;
-        end
-        else if (CS & !WE) begin
-        ERROR = 1'b0;
-         o_dat = mem[addr];
-        end
-     end
-end
+          mem[i] = `INSTRUCTION_SIZE'd0;
+        end	
+    end
+        else begin
+            if ( CS & !WE & !i_mm_select ) begin
+                o_dat = mem[i_prog_counter];
+            end            
+            else begin               
+                if (CS & WE & (addr>`ROM_SIZE-1)) begin
+                   ERROR = 1'b0;
+                   mem[addr]= in_dat;           
+                   end
+                else if (CS & WE & addr<`ROM_SIZE) begin
+                    ERROR = 1'b1;
+                end
+                else if (CS & !WE) begin
+                    ERROR = 1'b0;
+                    o_dat = mem[addr];
+                end
+             end
+         end
+    end
     
 endmodule

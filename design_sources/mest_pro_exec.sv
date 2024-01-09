@@ -5,9 +5,9 @@ module mest_pro_exec(
     input clk,
     input i_reset_n,
     input i_execute,
-    input [4-1 :0] i_op_code,
-    input [8-1 :0] i_operand1,
-    input [8-1 :0] i_operand2,
+    input [ `OPCODE_SIZE - 1 :0 ] i_op_code,
+    input [ `OPERANDA_SIZE - 1 : 0 ] i_operand1,
+    input [ `OPERANDB_SIZE - 1 :0] i_operand2,
     output reg o_exec_done,
     output reg [8-1 :0] o_result,
     output reg o_carry,
@@ -16,15 +16,24 @@ module mest_pro_exec(
     output reg o_return_pc,
     output reg o_end_of_code,
     output reg o_output_enable,
-    output reg [ `OUTPUT_SIZE - 1: 0] o_output, 
-    output reg[ `DATA_BITS-1:0] o_rega
+    output reg [ `OUTPUT_MEM_WIDTH - 1: 0] o_output, 
+    output reg[ `DATA_BITS-1:0] o_rega,
+    output reg [ `ADDR_BITS -1 : 0 ] o_mm_addr,
+    output reg [ `DATA_BITS - 1: 0 ] o_mm_dat,
+    output reg o_mm_select,
+    output reg o_cs,
+    output reg o_we
     // Add stuff for memory //
 );
 
-reg [9-1 :0] inter_result;
+reg [ `DATA_BITS :0] inter_result;
 
 always @(*)
 begin
+    o_mm_select = 0;
+    o_cs = 1;
+    o_we = 0;
+    
     case(i_op_code)
     `OP_ADD: begin
         inter_result = i_operand1 + i_operand2;
@@ -90,6 +99,7 @@ begin
         case( i_operand2 )
             `OUTPUT_REG: o_output = i_operand1 ;
             `REGA: o_rega = i_operand1 ;
+            `MM: o_mm_dat = i_operand1;
         endcase
         
         o_jump        = 1'd0;
@@ -101,7 +111,29 @@ begin
         o_jump        = 1'd0;
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
-     end  
+     end    
+     `OP_STORE_WORD: begin
+        o_mm_addr[ 7:0 ] = i_operand2;
+        o_mm_addr[ 15:8 ] = i_operand1;
+        o_cs = 1;
+        o_we = 1;
+        o_mm_select = 1;
+                    
+        o_jump        = 1'd0;
+        o_end_of_code = 1'd0;
+        o_return_pc   = 1'b0;
+     end
+     `OP_LOAD_WORD: begin
+        o_mm_addr[ 7:0 ] = i_operand2;
+        o_mm_addr[ 15:8 ] = i_operand1;
+        o_mm_select = 1;
+        o_cs = 1;
+        o_we = 0;
+        
+        o_jump        = 1'd0;
+        o_end_of_code = 1'd0;
+        o_return_pc   = 1'b0;
+     end
     `OP_HALT: begin
         o_end_of_code = 1'd1;
         inter_result  = 8'd0;

@@ -1,6 +1,8 @@
+`include "param.vh"
+
 module mest_pro_fetch#(
-    parameter OP_CODE_SIZE     = 4,
-    parameter INSTRUCTION_SIZE = OP_CODE_SIZE + 8 + 8 + 8,
+    parameter OP_CODE_SIZE     = `OPCODE_SIZE,
+    parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE,
     parameter ROM_DEPTH = 256
 )(
     input clk,
@@ -8,9 +10,10 @@ module mest_pro_fetch#(
     input idle_state,
     input fetch_state,
     input exec_state,
+    input i_mm_select,
     input jump,
     input return_pc,
-    input [8-1            :0] const_K,
+    input [`CONSTANT_K_SIZE - 1            :0] const_K,
     output reg [INSTRUCTION_SIZE-1  :0] decode_reg,
     // Memory Interface
     output o_req,
@@ -39,7 +42,7 @@ begin
         begin
             tmp_counter  <= (exec_state & jump) ? prog_counter : tmp_counter;
             prog_counter <= idle_state               ? 'd0 :
-                            fetch_state              ? prog_counter +'d1:
+                            fetch_state ? prog_counter +'d1:
                             (exec_state & jump)      ? const_K  :
                             (exec_state & return_pc) ? tmp_counter  :
                             prog_counter;

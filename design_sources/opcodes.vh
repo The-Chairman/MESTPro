@@ -13,6 +13,8 @@
 `define OP_RET 'b00001001
 `define OP_MVI 'b00001011
 `define OP_OUTPUT 'b00001111
+`define OP_STORE_WORD 'b00010000
+`define OP_LOAD_WORD 'b00010001
 `define OP_HALT 'b11111111
 
 //`define OP_LDAC 'b00000001

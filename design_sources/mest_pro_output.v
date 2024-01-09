@@ -1,10 +1,11 @@
+`include "param.vh"
 module mest_pro_output #(
-    MEM_WIDTH = 16
+    MEM_WIDTH = `OUTPUT_MEM_WIDTH
 )(
     input                      clk,
     input                      i_output_enable,
-    input      [MEM_WIDTH-1:0] i_mem_val,
-    output reg [7          :0] o_display
+    input      [MEM_WIDTH - 1 : 0 ] i_mem_val,
+    output reg [MEM_WIDTH - 1 :0] o_display
 );
 
 // 7 segment LED after

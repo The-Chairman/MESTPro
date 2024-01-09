@@ -7,6 +7,7 @@ parameter OP_CODE_SIZE     = 4, INSTRUCTION_SIZE = OP_CODE_SIZE + 8 + 8 + 8, ROM
 output reg clk,
 output reg i_reset_n,
 output reg i_start,
+output reg o_memory_reset,
 input wire [8-1 :0] o_result,
 input wire o_valid_result,
 input wire o_carry,
@@ -22,6 +23,9 @@ initial begin
     i_reset_n =0;
     clk       =0;
     i_start   =0;
+    o_memory_reset = 1;
+    #50
+    o_memory_reset = 0;
     repeat(10) @(posedge clk);
     i_reset_n =1;
     repeat(10) @(posedge clk);
