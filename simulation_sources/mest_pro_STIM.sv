@@ -51,7 +51,6 @@ end
 always @(posedge clk)begin
     if(o_all_done)begin
         $display("Simulation Done!");
-        $stop;
     end
 end
 

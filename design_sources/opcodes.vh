@@ -15,6 +15,7 @@
 `define OP_OUTPUT 'b00001111
 `define OP_STORE_WORD 'b00010000
 `define OP_LOAD_WORD 'b00010001
+`define OP_XOR 'b00010010
 `define OP_HALT 'b11111111
 
 //`define OP_LDAC 'b00000001

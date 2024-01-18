@@ -65,6 +65,12 @@ begin
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
     end
+    `OP_XOR: begin
+        inter_result = i_operand1 ^ i_operand2;
+        o_jump        = 1'd0;
+        o_end_of_code = 1'd0;
+        o_return_pc   = 1'b0;
+    end
     `OP_SROP1 : begin
         inter_result = i_operand1 >> 1;
         o_jump        = 1'd0;

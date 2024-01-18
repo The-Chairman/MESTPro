@@ -141,7 +141,6 @@ u_mest_pro_exec(
     .o_we( mm_we )
 );
 
-// This is borked
 TOP_MESTProMem3 my_mest_pro_memory
 (
     .CLK            (clk            ),
