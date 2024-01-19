@@ -13,12 +13,12 @@ module mest_pro_ctrlr(
 
 
 // Controller 
-reg [2-1 :0] current_state;
-reg [2-1 :0] next_state;
-parameter [2-1 :0] IDLE    = 2'd0;
-parameter [2-1 :0] FETCH   = 2'd1;
-parameter [2-1 :0] DECODE  = 2'd2;
-parameter [2-1 :0] EXECUTE = 2'd3;
+reg [2:0] current_state;
+reg [2:0] next_state;
+parameter [2:0] IDLE    = 3'd0;
+parameter [2:0] FETCH   = 3'd1;
+parameter [2:0] DECODE  = 3'd2;
+parameter [2:0] EXECUTE = 3'd3;
 
 // Assignments
 assign o_idle      = (current_state == IDLE   );
