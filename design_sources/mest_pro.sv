@@ -132,6 +132,7 @@ u_mest_pro_exec(
     .o_jump        (jump         ),
     .o_return_pc   (return_pc    ),
     .o_output_enable( output_enable),
+	.o_output( output_buffer ),
     .o_end_of_code (end_of_code  ),
     .o_rega ( REGA ),
     .o_mm_select( mm_select ),

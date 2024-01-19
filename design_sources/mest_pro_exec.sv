@@ -114,6 +114,7 @@ begin
     end
     `OP_OUTPUT: begin
         o_output_enable = i_operand1 ? 1'b1 : 1'b0;
+		o_output = i_operand2;
         o_jump        = 1'd0;
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
