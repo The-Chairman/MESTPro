@@ -121,7 +121,7 @@ begin
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
     end
-`OP_MRA: begin
+    `OP_MRA: begin
         case( i_operand2 )
             `OUTPUT_REG: o_output = o_rega ;
             `MM: o_mm_dat = o_rega;
@@ -131,7 +131,7 @@ begin
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
     end
-`OP_MLR: begin
+    `OP_MLR: begin
         case( i_operand2 )
             `OUTPUT_REG: o_output = i_loadReg;
             `REGA: o_rega = i_loadReg;
@@ -142,7 +142,7 @@ begin
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
     end
-`OP_MMDR: begin
+    `OP_MMDR: begin
         case( i_operand2 )
             `OUTPUT_REG: o_output = o_mm_dat;
             `REGA: o_rega = o_mm_dat;
@@ -153,7 +153,7 @@ begin
         o_return_pc   = 1'b0;
     end
     
-`OP_MRR: begin
+    `OP_MRR: begin
         case( i_operand2 )
             `OUTPUT_REG: o_output = inter_result;
             `REGA: o_rega = inter_result;
