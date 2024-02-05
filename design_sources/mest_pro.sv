@@ -39,6 +39,7 @@ wire execute_state;
 
 wire [$clog2(ROM_DEPTH)-1  :0] prog_counter;
 reg [INSTRUCTION_SIZE-1   :0] instruction;
+reg [INSTRUCTION_SIZE-1   :0] loadReg;
 
 // Memory Components 
 //wire o_req;
@@ -68,6 +69,8 @@ reg output_enable;
 reg [ `DATA_BITS-1:0 ] REGA;
 
 assign o_valid_result = exec_done;
+
+//assign loadReg = 0;
 
 //assign WE = 1'b0;
 //assign CS = 1'b1;
@@ -125,6 +128,7 @@ u_mest_pro_exec(
     .i_op_code     (op_code      ),
     .i_operand1    (operand_a    ),
     .i_operand2    (operand_b    ),
+    .i_loadReg     (loadReg      ),
     .o_exec_done   (exec_done    ),
     .o_result      (o_result     ),
     .o_carry       (o_carry      ),
@@ -132,7 +136,7 @@ u_mest_pro_exec(
     .o_jump        (jump         ),
     .o_return_pc   (return_pc    ),
     .o_output_enable( output_enable),
-	.o_output( output_buffer ),
+    .o_output (output_buffer),
     .o_end_of_code (end_of_code  ),
     .o_rega ( REGA ),
     .o_mm_select( mm_select ),
@@ -152,7 +156,8 @@ TOP_MESTProMem3 my_mest_pro_memory
     .WE             ( mm_we           ),
     .CS             ( mm_cs           ),
     .RESET          ( i_memory_reset        ),
-    .o_dat          ( instruction  ), // needs new wire/reg?
+    .o_inst         (instruction),
+    .o_dat          (loadReg), // needs new wire/reg?
     .ERROR          ( ERROR)
 );
 

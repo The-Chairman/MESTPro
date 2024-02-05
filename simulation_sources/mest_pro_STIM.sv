@@ -45,6 +45,8 @@ always @(posedge clk)begin
         $display("Zero Flag  number %0d = %0d",out_num,o_zero_flag);
         out_num = out_num +1;
     end
+ 
+ 
 end
 
 
