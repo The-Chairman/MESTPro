@@ -31,6 +31,7 @@ input wire WE,
 input wire CS,
 input wire RESET,
 input wire i_mm_select,
+output reg [`INSTRUCTION_SIZE-1:0] o_inst,
 output reg [`INSTRUCTION_SIZE-1:0] o_dat,
 output reg ERROR
 );
@@ -41,20 +42,21 @@ integer i;
 initial
 begin
 
-o_dat = `INSTRUCTION_SIZE'dz;
+//o_dat = `INSTRUCTION_SIZE'd0;
+
 ERROR = 1'b0;
  for (i=0;i<`MEM_SIZE; i=i+1) begin
 		 mem[i] = `INSTRUCTION_SIZE'd0;
                 end
 
-$readmemb("prog2.txt", mem); 
+$readmemb("prog3.txt", mem); 
 
 end 
 
 always @(posedge CLK)
 begin
     if (RESET) begin
-        o_dat = `INSTRUCTION_SIZE'dz;
+        o_dat = `INSTRUCTION_SIZE'b0;
         ERROR = 1'b0;
         for (i=`ROM_SIZE;i<`MEM_SIZE; i=i+1) begin 
           mem[i] = `INSTRUCTION_SIZE'd0;
@@ -62,7 +64,7 @@ begin
     end
         else begin
             if ( CS & !WE & !i_mm_select ) begin
-                o_dat = mem[i_prog_counter];
+                o_inst = mem[i_prog_counter];
             end            
             else begin               
                 if (CS & WE & (addr>`ROM_SIZE-1)) begin
