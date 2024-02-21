@@ -2,22 +2,20 @@
 
 module mest_pro_fetch#(
     parameter OP_CODE_SIZE     = `OPCODE_SIZE,
-    parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE,
-    parameter ROM_DEPTH = 256
+    parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE
 )(
     input clk,
     input i_reset_n,
     input idle_state,
     input fetch_state,
     input exec_state,
-    input i_mm_select,
     input jump,
     input return_pc,
     input [`CONSTANT_K_SIZE - 1            :0] const_K,
     output reg [INSTRUCTION_SIZE-1  :0] decode_reg,
     // Memory Interface
     output o_req,
-    output [$clog2(ROM_DEPTH)-1     :0] o_prog_counter,
+    output [`ADDR_BITS -1     :0] o_prog_counter,
     input [INSTRUCTION_SIZE-1 :0] i_instruction
 
 );
@@ -26,8 +24,8 @@ module mest_pro_fetch#(
 // Fetch Stage
 // Program Memory
 wire [INSTRUCTION_SIZE-1 :0] prog_mem_data_out;
-reg [$clog2(ROM_DEPTH)-1     :0] prog_counter;
-reg [$clog2(ROM_DEPTH)-1     :0] tmp_counter;
+reg [ `ADDR_BITS - 1     :0] prog_counter;
+reg [ `ADDR_BITS -1     :0] tmp_counter;
 
 
 // FETCH Stage

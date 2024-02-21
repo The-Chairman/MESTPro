@@ -2,7 +2,6 @@ module mest_pro_ctrlr(
     input  clk,
     input  i_reset_n,
     input  i_start,
-    input  i_exec_done,
     input  i_end_of_code,
     output o_idle,
     output o_fetch,

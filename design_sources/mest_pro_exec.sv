@@ -177,10 +177,8 @@ begin
         o_mm_addr[ 7:0 ] = i_operand2;
         o_mm_addr[ 15:8 ] = i_operand1;
         
- //       o_cs = 1;
         o_we = 1;
         o_mm_select = 1;
-        #199 //NOTE this delay is not sythesizable but is neede for proper operation. 
         o_we = 0;
         o_mm_select = 0;
                         
@@ -195,15 +193,17 @@ begin
         o_mm_select = 1;
         o_cs = 1;
         o_we = 0;
-        #199 //NOTE this delay is not sythesizable but is neede for proper operation.
         o_mm_select = 0;
         
         o_jump        = 1'd0;
         o_end_of_code = 1'd0;
         o_return_pc   = 1'b0;
      end
-     `NO_OP: begin
-     #10;
+	`OP_SDY: begin
+		o_we = 1;
+		o_jump        = 1'd0;
+        o_end_of_code = 1'd0;
+        o_return_pc   = 1'b0;
      end
     `OP_HALT: begin
         o_end_of_code = 1'd1;

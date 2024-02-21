@@ -20,21 +20,6 @@
 `define OP_STORE_WORD 'b00010000
 `define OP_LOAD_WORD 'b00010001
 `define OP_XOR 'b00010010
-`define NO_OP 'b00010011
+`define OP_SDY 'b00010011
 `define OP_HALT 'b11111111
-
-//`define OP_LDAC 'b00000001
-
-
-
-
-/*`define OP_XOR 'b00000110
-`define OP_OUT 'b00000111
-`define OP_STAC 'b00001000
-`define OP_LDA 'b00001001
-`define OP_STA 'b00001010
-`define OP_CMA 'b00001011
-`define OP_ACA 'b00001100
-*/
-
 `endif

@@ -9,17 +9,7 @@ module mest_pro#(
     input i_reset_n,
     input i_start,
     input i_memory_reset,
-//    // Memory Interface
-    
-//    output o_req,
-//    output [$clog2(ROM_DEPTH)-1  :0] o_prog_counter,
-//    output reg [INSTRUCTION_SIZE-1   :0] data2store,
-//    output reg WE,
-//    output reg CS,
-//    output reg RESET,
-//    input [INSTRUCTION_SIZE-1    :0] i_instruction,
-//    input m_ERROR,
-    
+
     // Outputs
     output [8-1 :0] o_result,
     output o_valid_result,
@@ -37,12 +27,12 @@ wire fetch_state;
 wire decode_state;
 wire execute_state;
 
-wire [$clog2(ROM_DEPTH)-1  :0] prog_counter;
+wire [ `ADDR_BITS -1  :0] prog_counter;
 reg [INSTRUCTION_SIZE-1   :0] instruction;
 reg [INSTRUCTION_SIZE-1   :0] loadReg;
 
 // Memory Components 
-//wire o_req;
+
 reg [INSTRUCTION_SIZE-1   :0] data2store;
 wire mm_we;
 wire mm_cs;
@@ -50,9 +40,6 @@ wire mm_select;
 
 reg[ `ADDR_BITS - 1 : 0] mm_addr;
 reg[ `DATA_BITS -1 : 0] mm_dat;
-
-//wire mm_RESET;
-//wire mm_ERROR;
 
 wire [`INSTRUCTION_SIZE-1 :0] decode_reg;
 wire [ `OPCODE_SIZE - 1 :0 ] op_code  ; 
@@ -70,18 +57,11 @@ reg [ `DATA_BITS-1:0 ] REGA;
 
 assign o_valid_result = exec_done;
 
-//assign loadReg = 0;
-
-//assign WE = 1'b0;
-//assign CS = 1'b1;
-//assign RESET = 1'b0;
-
 mest_pro_ctrlr
 u_mest_pro_ctrlr(
     .clk           (clk          ),
     .i_reset_n     (i_reset_n    ),
     .i_start       (i_start      ),
-    .i_exec_done   (exec_done    ),
     .i_end_of_code (end_of_code  ),
     .o_idle        (idle_state   ),
     .o_fetch       (fetch_state  ),
@@ -92,8 +72,7 @@ u_mest_pro_ctrlr(
 
 mest_pro_fetch#(
     .OP_CODE_SIZE     (OP_CODE_SIZE     ),
-    .INSTRUCTION_SIZE (INSTRUCTION_SIZE ),
-    .ROM_DEPTH        (ROM_DEPTH        )
+    .INSTRUCTION_SIZE (INSTRUCTION_SIZE )
 )
 u_mest_pro_fetch(
     .clk            (clk           ),
@@ -101,7 +80,6 @@ u_mest_pro_fetch(
     .idle_state     (idle_state    ),
     .fetch_state    (fetch_state   ),
     .exec_state     (decode_state  ),
-    .i_mm_select    ( mm_select ),
     .jump           (jump          ),
     .return_pc      (return_pc     ),
     .const_K        (const_K       ),
@@ -152,12 +130,12 @@ TOP_MESTProMem3 my_mest_pro_memory
     .i_prog_counter ( prog_counter),
     .i_mm_select    ( mm_select ),
     .addr           ( mm_addr ),
-    .in_dat         ( mm_dat    ), //needs new wire
+    .in_dat         ( mm_dat    ),
     .WE             ( mm_we           ),
     .CS             ( mm_cs           ),
     .RESET          ( i_memory_reset        ),
     .o_inst         (instruction),
-    .o_dat          (loadReg), // needs new wire/reg?
+    .o_dat          (loadReg),
     .ERROR          ( ERROR)
 );
 

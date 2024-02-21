@@ -63,18 +63,18 @@ begin
         end	
     end
         else begin
-            if ( CS & !WE & !i_mm_select ) begin
+            if ( CS ) begin
                 o_inst = mem[i_prog_counter];
             end            
             else begin               
-                if (CS & WE & (addr>`ROM_SIZE-1)) begin
+                if (WE & (addr>`ROM_SIZE-1)) begin
                    ERROR = 1'b0;
                    mem[addr]= in_dat;           
                    end
-                else if (CS & WE & addr<`ROM_SIZE) begin
+                else if (WE & addr<`ROM_SIZE) begin
                     ERROR = 1'b1;
                 end
-                else if (CS & !WE) begin
+                else if ( !WE & i_mm_select ) begin
                     ERROR = 1'b0;
                     o_dat = mem[addr];
                 end
