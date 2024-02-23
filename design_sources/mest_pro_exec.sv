@@ -29,12 +29,6 @@ module mest_pro_exec(
 
 reg [ `DATA_BITS :0] inter_result;
 integer i;
-reg [`DATA_BITS-1:0] tmp;
-
-initial
-begin
-tmp = 0;
-end 
 
 always @(*)
 begin
