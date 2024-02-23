@@ -27,7 +27,7 @@ module mest_pro_exec(
     // Add stuff for memory //
 );
 
-reg [ `DATA_BITS :0] inter_result;
+reg [ `DATA_BITS - 1 :0] inter_result;
 integer i;
 
 always @(*)
