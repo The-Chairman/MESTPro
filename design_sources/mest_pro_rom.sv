@@ -1,6 +1,6 @@
 module mest_pro_rom#(
-    parameter DEPTH = 256,
-    parameter WORD_SIZE=28
+    parameter DEPTH = `ROM_SIZE,
+    parameter WORD_SIZE=32
 )(
     input clk,
     input  [$clog2(DEPTH)-1     :0] address,
@@ -9,7 +9,7 @@ module mest_pro_rom#(
 reg [WORD_SIZE-1 :0] rom [DEPTH-1 :0];
 
 initial begin
-    $readmemb("prog.txt", rom); //Change Path
+    $readmemb(`ROM_FILE, rom); //Change Path
 end
 
 always @(posedge clk)

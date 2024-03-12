@@ -45,11 +45,11 @@ begin
 //o_dat = `INSTRUCTION_SIZE'd0;
 
 ERROR = 1'b0;
- for (i=0;i<`MEM_SIZE; i=i+1) begin
-		 mem[i] = `INSTRUCTION_SIZE'd0;
-                end
+ // for (i=0;i<`MEM_SIZE; i=i+1) begin
+		 // mem[i] = `INSTRUCTION_SIZE'd0;
+                // end
 
-$readmemb("prog3.txt", mem); 
+$readmemb(`ROM_FILE, mem, 0, `ROM_SIZE ); 
 
 end 
 
@@ -58,9 +58,9 @@ begin
     if (RESET) begin
         o_dat = `INSTRUCTION_SIZE'b0;
         ERROR = 1'b0;
-        for (i=`ROM_SIZE;i<`MEM_SIZE; i=i+1) begin 
-          mem[i] = `INSTRUCTION_SIZE'd0;
-        end	
+        // for (i=`ROM_SIZE;i<`MEM_SIZE; i=i+1) begin 
+          // mem[i] = `INSTRUCTION_SIZE'd0;
+        // end	
     end
         else begin
             if ( CS ) begin

@@ -5,7 +5,7 @@ module mest_pro_tb;
 
 parameter OP_CODE_SIZE     = `OPCODE_SIZE;
 parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE;
-parameter ROM_DEPTH = 65536;
+parameter ROM_DEPTH = `ROM_SIZE;
 
 wire w_clk;
 wire w_reset_n;
@@ -19,10 +19,17 @@ wire w_all_done;
 wire [ `OUTPUT_MEM_WIDTH -1 : 0 ] w_display;
 wire w_memory_reset;
 
-mest_pro#(
+initial begin
+	$dumpfile( `DUMP_FILE );
+	$dumpvars( w_clk, w_reset_n, w_start , w_result, w_valid_result, w_carry, w_zero_flag, w_all_done, w_display, w_memory_reset, DUT );
+
+end
+
+always @( posedge w_all_done )  $finish;
+
+mest_pro #(
    .OP_CODE_SIZE    (OP_CODE_SIZE    ),
-   .INSTRUCTION_SIZE(INSTRUCTION_SIZE),
-   .ROM_DEPTH       (ROM_DEPTH       )
+   .INSTRUCTION_SIZE(INSTRUCTION_SIZE)
 )
 DUT
 (

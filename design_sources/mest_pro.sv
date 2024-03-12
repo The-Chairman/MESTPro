@@ -2,8 +2,7 @@
 
 module mest_pro#(
     parameter OP_CODE_SIZE     = `OPCODE_SIZE,
-    parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE,
-    parameter ROM_DEPTH = 65536
+    parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE
 )(
     input clk,
     input i_reset_n,

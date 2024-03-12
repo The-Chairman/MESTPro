@@ -1,6 +1,6 @@
 `include "param.vh"
 module mest_pro_output #(
-    MEM_WIDTH = `OUTPUT_MEM_WIDTH
+    parameter MEM_WIDTH = `OUTPUT_MEM_WIDTH
 )(
     input                      clk,
     input                      i_output_enable,

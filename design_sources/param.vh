@@ -10,8 +10,8 @@
 
 `define ADDR_BITS 16
 `define DATA_BITS 28
-`define ROM_SIZE 2048
-`define MEM_SIZE 4096
+//`define ROM_SIZE 2048
+`define MEM_SIZE 100
 
 // Output parameters
 `define OUTPUT_MEM_WIDTH 16
