@@ -15,10 +15,7 @@ reg[ MEM_WIDTH -1 : 0 ] temp_display;
 
 always @(posedge clk)
 begin
-  if(~i_output_enable)
-    begin
-      temp_display = 'd0; // clear display when output enable is off
-    end
+
  o_display <= temp_display; 
 
 end
@@ -91,7 +88,6 @@ always@(*) begin
           end
         default:
           begin
-            temp_display = 'd0; // clear display when output enable is off
           end
         endcase
 end

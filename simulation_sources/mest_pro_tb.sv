@@ -16,7 +16,7 @@ wire w_valid_result;
 wire w_carry;
 wire w_zero_flag;
 wire w_all_done;
-wire [ `OUTPUT_MEM_WIDTH -1 : 0 ] w_display
+wire [ `OUTPUT_MEM_WIDTH -1 : 0 ] w_display;
 wire w_memory_reset;
 
 mest_pro#(
@@ -48,8 +48,7 @@ mest_pro_STIM my_mest_pro_STIM
     .i_valid_result (w_valid_result ),
     .i_carry        (w_carry        ),
     .i_zero_flag    (w_zero_flag    ),
-    .i_all_done     (w_all_done     ),
-	.i_display      (w_display      )
+    .i_all_done     (w_all_done     )
 );
 
 
