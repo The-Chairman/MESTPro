@@ -77,12 +77,12 @@ zero_operand_opcodes = [
 def main():
     # command line arguments
     parser = argparse.ArgumentParser(
-            prog = "parse_mest_parse.py",
+            prog = "parse_mest_prorgam.py",
             description = "convert a simple program to binary for verilog" )
 
     parser.add_argument('files', metavar='FILE', nargs='*', help='files to read, if empty, stdin is used')
     parser.add_argument('-c', '--comments', action='store_true', default=False, 
-            help="append the orignal command as a comment to the end of each line (not the default behavior)")
+            help="append the original command as a comment to the end of each line (not the default behavior)")
     parser.add_argument('-o', '--output-file',
             help="the output file to write the new program to. If not specified, prints to stdout instead" )
 
