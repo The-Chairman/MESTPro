@@ -15,6 +15,9 @@ syndir = synthesis_gens
 postsyndir = post_synthesis
 postsynsimobjs = $(foreach o, mest_pro_STIM.sv mest_pro_tb.sv, $(realpath $(simsourcesdir)/$(o) ) )
 
+PROGRAM_SOURCES := $(wildcard $(programdir)/*.asm)
+PROGRAM_OBJECTS := $(patsubst $(programdir)/%.asm, $(programdir)/%.mem, $(PROGRAM_SOURCES))
+
 
 define VMACROS =
 DUMP_FILE=`"$(abspath $(syndir)/synthesis.vcd)`"
@@ -29,16 +32,16 @@ export VMACROS
 all:	functional-verification synthesis
 
 
-.PHONY: functional-verification waveform synthesis post-synthesis-sim\
- clean mtest
+.PHONY: functional-verification waveform synthesis post-synthesis-sim clean \
+	mtest test_programs
 
 # functional-verification targets ##############################################
 functional-verification: $(fvdir) $(fvobjs)
 	
-$(fvdir)/test_pre:	$(designobjs) $(simobjs)
+$(fvdir)/test_pre:	$(designobjs) $(simobjs) $(progfile)
 	iverilog -g2005-sv -o $@ -I $(designsourcesdir) \
 	-DDUMP_FILE=\`\"$(abspath $(fvdir)/presynthesis.vcd)\`\" \
-	-DROM_FILE=\`\"$(abspath $(programdir)/prog3.mem)\`\" \
+	-DROM_FILE=\`\"$(abspath $(progfile))\`\" \
 	-DROM_SIZE=`wc -l $(programdir)/prog3.mem | awk -F' ' '{print $$1}'` \
 	$(designobjs) $(simobjs)
 
@@ -50,9 +53,8 @@ waveform:	$(fvdir)/presynthesis.vcd
 
 # synthesis targets ############################################################
 synthesis: $(syndir) $(syndir)/rom_synth.v
-
 	
-$(syndir)/rom_synth.v: $(designobjs) $(simobjs)
+$(syndir)/rom_synth.v: $(designobjs) $(simobjs) $(progfile)
 	$(eval temp_macro_file=$(shell mktemp $(syndir)/XXXX.macro ) )
 	echo "$$VMACROS" > $(temp_macro_file)
 	export SYNTH_FILE="$@" BUILD_FILES="$(designobjs)" \
@@ -61,13 +63,19 @@ $(syndir)/rom_synth.v: $(designobjs) $(simobjs)
 	rm -f $(temp_macro_file)
 
 # post synthesis targets #######################################################
-post-synthesis-sim: $(postsyndir) $(syndir)/rom_synth.v
+post-synthesis-sim: $(postsyndir) $(syndir)/rom_synth.v $(progfile)
 	iverilog  -g2005-sv -o $(l)/test_post -D POST_SYNTHESIS -I $(designsourcesdir) \
 	-DDUMP_FILE=\`\"$(abspath $(postsyndir)/postsynthesis.vcd)\`\" \
-	-DROM_FILE=\`\"$(abspath $(programdir)/prog3.mem)\`\" \
+	-DROM_FILE=\`\"$(abspath $(progfile))\`\" \
 	-DROM_SIZE=`wc -l $(programdir)/prog3.mem | awk -F' ' '{print $$1}'` \
 	-s mest_pro_tb $(syndir)/rom_synth.v $(postsynsimobjs)
 	
+# test program targets #########################################################
+test_programs:	$(PROGRAM_OBJECTS)
+
+$(programdir)/%.mem: $(programdir)/%.asm
+	python3 ./bin/parse_mest_program.py -c -o $@ $<
+
 # directory targets ############################################################
 $(fvdir) $(syndir) $(postsyndir):
 	mkdir -p $@
@@ -78,8 +86,9 @@ clean:
 	rm -f test_rom_synth.v
 	rm -f $(syndir)/*.macro
 	rm -f $(syndir)/rom_synth.v
+	rm -f $(programdir)/*.mem
 	
 mtest:
-		echo $(designobjs)
-		echo $(simobjs)
-		echo $(VMACROS)
+	echo $(designobjs)
+	echo $(simobjs)
+	echo $(VMACROS)
