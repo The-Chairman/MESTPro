@@ -1,94 +1,33 @@
-designsourcesdir = design_sources
-designobjs =$(foreach o,  mest_pro_memory.v mest_pro_output.v mest_pro.sv mest_pro_ctrlr.sv mest_pro_decode.sv mest_pro_exec.sv mest_pro_fetch.sv mest_pro_rom.sv program_rom.v, $(realpath $(designsourcesdir)/$(o)))
+PROGRAM_RUNS_DIR = program_runs
+PROGRAM_DIR = program_files
+PROGRAM_SOURCES := $(wildcard $(PROGRAM_DIR)/*.asm)
+PROGRAM_OBJECTS := $(patsubst $(PROGRAM_DIR)/%.asm, $(PROGRAM_DIR)/%.mem, $(PROGRAM_SOURCES))
+PROGRAM_RUNS := $(sort $(basename $(notdir $(PROGRAM_SOURCES))))
 
-simsourcesdir = simulation_sources
-simobjs = $(foreach o, mest_pro_STIM.sv mest_pro_tb.sv, $(realpath $(simsourcesdir)/$(o) ) )
-
-programdir = program_files
-progfile = $(programdir)/prog3.mem
-
-fvdir = functional_verification
-fvobjs = $(foreach o, test_pre presynthesis.vcd, $(fvdir)/$(o) )
-
-syndir = synthesis_gens
-
-postsyndir = post_synthesis
-postsynsimobjs = $(foreach o, mest_pro_STIM.sv mest_pro_tb.sv, $(realpath $(simsourcesdir)/$(o) ) )
-
-PROGRAM_SOURCES := $(wildcard $(programdir)/*.asm)
-PROGRAM_OBJECTS := $(patsubst $(programdir)/%.asm, $(programdir)/%.mem, $(PROGRAM_SOURCES))
-
-
-define VMACROS =
-DUMP_FILE=`"$(abspath $(syndir)/synthesis.vcd)`"
-ROM_FILE=`"$(abspath $(progfile))`"
-ROM_SIZE=$(shell wc -l $(progfile) | awk -F' ' '{print $$1}')
+define PROJ_RULE
+$(1)-$(2):
+	$(MAKE) -f synthesis.mak  build_dir=$(PROGRAM_RUNS_DIR)/$1  prog_file=$(PROGRAM_DIR)/$1.mem $2
 endef
 
-export VMACROS
+SYNTHESIS_RULES=all functional-verification functional-waveform synthesis \
+	post-synthesis-sim synthesis-waveform clean mtest stats
+
+$(foreach _rule, $(SYNTHESIS_RULES), \
+	$(foreach _proj, $(PROGRAM_RUNS), \
+		$(eval $(call PROJ_RULE,$(_proj),$(_rule)))))
 
 # Functions? ###################################################################
 
-all:	functional-verification synthesis
+.PHONY: $(PROGRAM_RUNS) build_all clean_all stats_all
 
+build_all: $(PROGRAM_RUNS)
 
-.PHONY: functional-verification waveform synthesis post-synthesis-sim clean \
-	mtest test_programs
+clean_all: $(foreach _proj, $(PROGRAM_RUNS), $(_proj)-clean)
 
-# functional-verification targets ##############################################
-functional-verification: $(fvdir) $(fvobjs)
-	
-$(fvdir)/test_pre:	$(designobjs) $(simobjs) $(progfile)
-	iverilog -g2005-sv -o $@ -I $(designsourcesdir) \
-	-DDUMP_FILE=\`\"$(abspath $(fvdir)/presynthesis.vcd)\`\" \
-	-DROM_FILE=\`\"$(abspath $(progfile))\`\" \
-	-DROM_SIZE=`wc -l $(programdir)/prog3.mem | awk -F' ' '{print $$1}'` \
-	$(designobjs) $(simobjs)
+stats_all: $(foreach _proj, $(PROGRAM_RUNS), $(_proj)-stats)
 
-$(fvdir)/presynthesis.vcd: $(fvdir)/test_pre
-	cd $(fvdir); vvp -M../ -N test_pre -s
-	
-waveform:	$(fvdir)/presynthesis.vcd
-	cd $(fvdir); gtkwave ./presynthesis.vcd presynthesis.gtkw &
-
-# synthesis targets ############################################################
-synthesis: $(syndir) $(syndir)/rom_synth.v
-	
-$(syndir)/rom_synth.v: $(designobjs) $(simobjs) $(progfile)
-	$(eval temp_macro_file=$(shell mktemp $(syndir)/XXXX.macro ) )
-	echo "$$VMACROS" > $(temp_macro_file)
-	export SYNTH_FILE="$@" BUILD_FILES="$(designobjs)" \
-	VMACROS_FILE="$(strip $(temp_macro_file))" TOP_MODULE=mest_pro; \
-	yosys -c yosys_build.tcl
-	rm -f $(temp_macro_file)
-
-# post synthesis targets #######################################################
-post-synthesis-sim: $(postsyndir) $(syndir)/rom_synth.v $(progfile)
-	iverilog  -g2005-sv -o $(l)/test_post -D POST_SYNTHESIS -I $(designsourcesdir) \
-	-DDUMP_FILE=\`\"$(abspath $(postsyndir)/postsynthesis.vcd)\`\" \
-	-DROM_FILE=\`\"$(abspath $(progfile))\`\" \
-	-DROM_SIZE=`wc -l $(programdir)/prog3.mem | awk -F' ' '{print $$1}'` \
-	-s mest_pro_tb $(syndir)/rom_synth.v $(postsynsimobjs)
-	
-# test program targets #########################################################
-test_programs:	$(PROGRAM_OBJECTS)
-
-$(programdir)/%.mem: $(programdir)/%.asm
-	python3 ./bin/parse_mest_program.py -c -o $@ $<
-
-# directory targets ############################################################
-$(fvdir) $(syndir) $(postsyndir):
-	mkdir -p $@
-	
-clean:
-	rm -f $(fvdir)/test_pre
-	rm -f $(fvdir)/presynthesis.vcd
-	rm -f test_rom_synth.v
-	rm -f $(syndir)/*.macro
-	rm -f $(syndir)/rom_synth.v
-	rm -f $(programdir)/*.mem
-	
-mtest:
-	echo $(designobjs)
-	echo $(simobjs)
-	echo $(VMACROS)
+$(PROGRAM_RUNS):
+	$(MAKE) -f synthesis.mak \
+		prog_file=$(PROGRAM_DIR)/$(shell basename $@).mem \
+		build_dir=$(PROGRAM_RUNS_DIR)/$@ \
+		all

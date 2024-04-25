@@ -1,2 +1,9 @@
 patch_project.py
 .backup
+.vscode
+MESTPro.code-workspace
+*.mem
+program_runs
+functional_verification
+post_synthesis
+synthesis_gens

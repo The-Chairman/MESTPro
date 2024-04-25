@@ -36,7 +36,7 @@ begin
     o_cs = 1;
     o_we = 0;
     o_output_enable = 0;
-    
+
     case(i_op_code)
     `OP_ADD: begin
         inter_result = i_operand1 + i_operand2;
@@ -118,7 +118,7 @@ begin
     `OP_MRA: begin
         case( i_operand2 )
             `OUTPUT_REG: o_output = o_rega ;
-            `MM: o_mm_dat = o_rega;
+            `MM: o_mm_dat = o_rega; // I don't think this works? Wouldn't this need to be an input wire FROM register A?
         endcase
         
         o_jump        = 1'd0;
@@ -200,6 +200,7 @@ begin
         o_return_pc   = 1'b0;
      end
     `OP_HALT: begin
+
         o_end_of_code = 1'd1;
         inter_result  = 8'd0;
         o_jump        = 1'd0;
@@ -230,6 +231,7 @@ begin
             o_carry     <= inter_result[9-1];
             o_zero_flag <= ~(|inter_result);
             o_exec_done <= i_execute;
+
         end 
 end
 

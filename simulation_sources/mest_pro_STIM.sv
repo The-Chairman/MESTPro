@@ -19,6 +19,7 @@ always begin
 #50  clk = !clk;
 end
 
+realtime delay;
 initial begin
     o_reset_n =0;
     clk       =0;
@@ -26,12 +27,19 @@ initial begin
     o_memory_reset = 1;
     #50
     o_memory_reset = 0;
-    repeat(10) @(posedge clk);
+    repeat(5) @(posedge clk);
     o_reset_n =1;
-    repeat(10) @(posedge clk);
+    repeat(5) @(posedge clk);
     o_start   =1;
     @(posedge clk);
     o_start   =0;
+
+
+	delay=50000;
+	#(delay);
+	$display("Simulation timeout!");
+	$display("Done Simulation");
+	$finish;
 end
 
 integer out_num;
@@ -47,13 +55,6 @@ always @(posedge clk)begin
     end
  
  
-end
-
-
-always @(posedge clk)begin
-    if(i_all_done)begin
-        $display("Simulation Done!");
-    end
 end
 
 endmodule

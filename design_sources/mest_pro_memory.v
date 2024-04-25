@@ -49,7 +49,7 @@ ERROR = 1'b0;
 		 // mem[i] = `INSTRUCTION_SIZE'd0;
                 // end
 
-$readmemb(`ROM_FILE, mem, 0, `ROM_SIZE ); 
+$readmemb(`ROM_FILE, mem, 0, `ROM_SIZE-1 ); 
 
 end 
 

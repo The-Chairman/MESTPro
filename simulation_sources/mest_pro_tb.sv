@@ -3,10 +3,6 @@
 
 module mest_pro_tb;
 
-parameter OP_CODE_SIZE     = `OPCODE_SIZE;
-parameter INSTRUCTION_SIZE = `INSTRUCTION_SIZE;
-parameter ROM_DEPTH = `ROM_SIZE;
-
 wire w_clk;
 wire w_reset_n;
 wire w_start;
@@ -21,15 +17,19 @@ wire w_memory_reset;
 
 initial begin
 	$dumpfile( `DUMP_FILE );
-	$dumpvars( w_clk, w_reset_n, w_start , w_result, w_valid_result, w_carry, w_zero_flag, w_all_done, w_display, w_memory_reset, DUT );
+	$dumpvars( w_clk, w_reset_n, w_start , w_result, w_valid_result, w_carry, 
+		w_zero_flag, w_all_done, w_display, w_memory_reset, DUT );
 
 end
 
-always @( posedge w_all_done )  $finish;
-
+always @( posedge w_all_done )  begin
+	$display("all_done signal went high");
+	$display("simulation complete");
+    repeat(5) @(posedge w_clk);
+	$finish;
+end
 mest_pro #(
-   .OP_CODE_SIZE    (OP_CODE_SIZE    ),
-   .INSTRUCTION_SIZE(INSTRUCTION_SIZE)
+
 )
 DUT
 (

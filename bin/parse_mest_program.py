@@ -57,7 +57,10 @@ memory_operand_opcodes = [
 one_operand_opcodes = [
     "SROP1",
     "SLOP1",
-    "NEGOP1",
+    "NEGOP1"
+]
+
+one_operand_op2_opcodes = [
     "MRA",
     "MLR",
     "MMDR",
@@ -97,8 +100,9 @@ def main():
                               ')\s+(?P<OPERAND1>\d+)\s+(?P<OPERAND2>\d+)' ) 
     memory_operands = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in memory_operand_opcodes] ) + 
                               ')\s+(?P<OPERAND1>\d+)' ) 
-    one_operand = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in one_operand_opcodes] ) + 
+    one_operand = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in one_operand_opcodes+ one_operand_op2_opcodes] ) + 
                               ')\s+(?P<OPERAND1>\d+)' )
+
     constk_operand = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in constk_operand_opcodes] ) + 
                               ')\s+(?P<CONSTK>\d+)' )
     zero_operand = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in zero_operand_opcodes] ) + ')$' )
@@ -113,7 +117,7 @@ def main():
             oc = opcode_checker.match(l)
             opcode = oc.group(1)
             
-            if opcode in ( two_operand_opcodes + memory_operand_opcodes + one_operand_opcodes + constk_operand_opcodes + zero_operand_opcodes):
+            if opcode in ( two_operand_opcodes + memory_operand_opcodes + one_operand_opcodes + one_operand_op2_opcodes + constk_operand_opcodes + zero_operand_opcodes):
     
                 if args.comments:
                     pline_e = f" // {l}\n";
@@ -150,6 +154,17 @@ def main():
                         
                     else:
                         stderr.write(f"malformed line for {l}\n")
+                elif opcode in one_operand_op2_opcodes :
+                    ooo = one_operand.match(l)
+                    if ooo:
+                        g = ooo.groupdict()
+                        if not (int(g['OPERAND1'])  > 255 ):
+                            fout.write( f"{opcodes[opcode]:08b}_{0:08b}_{0:08b}_{int(g['OPERAND1']):08b}{pline_e}")
+                        else:
+                            stderr.write(f"Error: operand greater than 8 bit int: {l}\n")
+                        
+                    else:
+                        stderr.write(f"malformed line for fdasfs{l}\n")
                 elif opcode in constk_operand_opcodes:
                     ckoo = constk_operand.match(l)
                     if ckoo:
