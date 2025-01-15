@@ -3,6 +3,8 @@ module mest_pro_ctrlr(
     input  i_reset_n,
     input  i_start,
     input  i_end_of_code,
+    input i_done_loading_rom,
+    output o_boot_state,
     output o_idle,
     output o_fetch,
     output o_decode,
@@ -12,6 +14,7 @@ module mest_pro_ctrlr(
 
 
 // Controller 
+reg boot;
 reg [2-1 :0] current_state;
 reg [2-1 :0] next_state;
 parameter [2-1 :0] IDLE    = 2'd0;
@@ -25,46 +28,48 @@ assign o_fetch     = (current_state == FETCH  );
 assign o_decode    = (current_state == DECODE );
 assign o_execute   = (current_state == EXECUTE);
 assign o_all_done  = i_end_of_code & o_execute;
-
-
+assign o_boot_state = boot;
 
 // Sequential Logic
-always @(posedge clk or negedge i_reset_n)
+always @(posedge clk or posedge i_reset_n)
 begin
-    if(~i_reset_n)
-        begin
-            current_state <= 'd0;
-        end 
-    else
-        begin
-            current_state <= next_state;
-        end 
+    if(~i_reset_n) begin
+        current_state <= 'd0; 
+        boot <= 'd1;
+    end else if (!boot) begin
+        current_state <= next_state;
+    end else begin
+        if (i_done_loading_rom) boot <= 'd0;
+    end
+
 end
 
 always @(*)
 begin
-    case(current_state)
-        IDLE:
-            begin
-                next_state = i_start ? FETCH : IDLE;
+    if (!boot ) begin
+        case(current_state)
+            IDLE:
+                begin
+                    next_state = i_start ? FETCH : IDLE;
+                end
+            FETCH:
+                begin
+                    next_state = DECODE;
+                end
+            DECODE:
+                begin
+                    next_state = EXECUTE;
+                end 
+            EXECUTE:
+                begin
+                    next_state = i_end_of_code   ? IDLE : FETCH;
             end
-        FETCH:
-            begin
-                next_state = DECODE;
-            end
-        DECODE:
-            begin
-                next_state = EXECUTE;
-            end 
-        EXECUTE:
-            begin
-                next_state = i_end_of_code   ? IDLE : FETCH;
-           end
-        default:
-            begin
-                next_state = IDLE;
-            end
-    endcase
+            default:
+                begin
+                    next_state = IDLE;
+                end
+        endcase
+    end
 end
 
 

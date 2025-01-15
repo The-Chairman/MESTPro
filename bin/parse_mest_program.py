@@ -77,6 +77,13 @@ zero_operand_opcodes = [
     "HALT"
 ]
 
+def format_line(w1,w2,w3,w4, pl="", is_hex=False ):
+    if( is_hex ):
+        dec = (w1<<24) + (w2<<16) + (w3<<8) + w4
+        return f"{dec:08x}{pl}"
+    else:
+        return f"{w1:08b}_{w2:08b}_{w3:08b}_{w4:08b}{pl}"
+
 def main():
     # command line arguments
     parser = argparse.ArgumentParser(
@@ -89,10 +96,15 @@ def main():
     parser.add_argument('-o', '--output-file',
             help="the output file to write the new program to. If not specified, prints to stdout instead" )
 
+    output_type_group = parser.add_mutually_exclusive_group()
+    output_type_group.add_argument("-x", "--hex-output", dest="is_hex",action="store_true", default=False, help="output \
+                                   in 32bit hex instead of binary(default)")
+
     args = parser.parse_args()
 
     pline_e = "\n";
 
+    # Output Format
 
     # Regex Parsers
     opcode_checker = re.compile( r'(?P<OPCODE>\w+)' )
@@ -106,7 +118,6 @@ def main():
     constk_operand = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in constk_operand_opcodes] ) + 
                               ')\s+(?P<CONSTK>\d+)' )
     zero_operand = re.compile( r'(?P<OPCODE>' + "|".join( [f"({o})" for o in zero_operand_opcodes] ) + ')$' )
-
 
     # Open our outputfile
     fout = open( args.output_file, "w") if args.output_file else stdout 
@@ -127,7 +138,7 @@ def main():
                     if too:
                         g = too.groupdict()
                         if not ( (int(g['OPERAND1'])  > 255 ) or (int( g['OPERAND2'] ) > 255) ):
-                            fout.write( f"{opcodes[opcode]:08b}_{0:08b}_{int(g['OPERAND1']):08b}_{int(g['OPERAND2']):08b}{pline_e}")
+                            fout.write( format_line(opcodes[opcode], 0, int(g['OPERAND1']), int(g['OPERAND2']), pl=pline_e, is_hex=args.is_hex ) )
                         else:
                             stderr.write(f"Error: operand greater than 8 bit int: {l}\n")
                     else:
@@ -136,10 +147,10 @@ def main():
                     moo = memory_operands.match( l )
                     if moo:
                         g = moo.groupdict()
-                        if not ( int(g['OPERAND1'] ) > 65535 ):
-
-                            binary_address = f"{int(g['OPERAND1']):016b}"
-                            fout.write( f"{opcodes[opcode]:08b}_{0:08b}_{binary_address[:8]}_{binary_address[8:]}{pline_e}" )
+                        op1 = int( g['OPERAND1'] )
+                        if not ( op1 > 65535 ):
+                            binary_address = f"{op1:016b}"
+                            fout.write( format_line(opcodes[opcode], 0, op1 >> 8, op1 & 255, pl=pline_e, is_hex=args.is_hex ) )
                         else:
                             stderr.write( "malformed line for{l}\n" )
 
@@ -147,8 +158,9 @@ def main():
                     ooo = one_operand.match(l)
                     if ooo:
                         g = ooo.groupdict()
-                        if not (int(g['OPERAND1'])  > 255 ):
-                            fout.write( f"{opcodes[opcode]:08b}_{0:08b}_{int(g['OPERAND1']):08b}_{0:08b}{pline_e}")
+                        op1 = int( g['OPERAND1'] )
+                        if not ( op1 > 255 ):
+                            fout.write( format_line(opcodes[opcode], 0, op1, 0, pl=pline_e, is_hex=args.is_hex ) )
                         else:
                             stderr.write(f"Error: operand greater than 8 bit int: {l}\n")
                         
@@ -158,8 +170,9 @@ def main():
                     ooo = one_operand.match(l)
                     if ooo:
                         g = ooo.groupdict()
-                        if not (int(g['OPERAND1'])  > 255 ):
-                            fout.write( f"{opcodes[opcode]:08b}_{0:08b}_{0:08b}_{int(g['OPERAND1']):08b}{pline_e}")
+                        op2 = int( g[ 'OPERAND1' ] ) # this looks wrong, but isn't
+                        if not ( op2 > 255 ):
+                            fout.write( format_line(opcodes[opcode], 0, 0, op2, pl=pline_e, is_hex=args.is_hex ) )
                         else:
                             stderr.write(f"Error: operand greater than 8 bit int: {l}\n")
                         
@@ -169,8 +182,9 @@ def main():
                     ckoo = constk_operand.match(l)
                     if ckoo:
                         g = ckoo.groupdict()
-                        if not (int(g['CONSTK'])  > 255 ):
-                            fout.write( f"{opcodes[opcode]:08b}_{int(g['CONSTK']):08b}_{0:08b}_{0:08b}{pline_e}")
+                        constk = int( g['CONSTK'] )
+                        if not ( constk > 255 ):
+                            fout.write( format_line(opcodes[opcode], constk, 0, 0, pl=pline_e, is_hex=args.is_hex ) )
                         else:
                             stderr.write(f"Error: constk greater than 8 bit int: {l}\n")
                     else:
@@ -178,7 +192,7 @@ def main():
                 elif opcode in zero_operand_opcodes:
                     zoo = zero_operand.match(l)
                     if zoo:
-                        fout.write( f"{opcodes[opcode]:08b}_{0:08b}_{0:08b}_{0:08b}{pline_e}")
+                        fout.write( format_line(opcodes[opcode], 0, 0, 0, pl=pline_e, is_hex=args.is_hex ) )
                     else:
                         stderr.write(f"malformed line for {l}\n")
 

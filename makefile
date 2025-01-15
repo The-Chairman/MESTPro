@@ -10,7 +10,7 @@ $(1)-$(2):
 endef
 
 SYNTHESIS_RULES=all functional-verification functional-waveform synthesis \
-	post-synthesis-sim synthesis-waveform clean mtest stats
+	post-synthesis-sim synthesis-waveform clean mtest stats errors
 
 $(foreach _rule, $(SYNTHESIS_RULES), \
 	$(foreach _proj, $(PROGRAM_RUNS), \

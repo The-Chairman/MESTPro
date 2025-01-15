@@ -1,0 +1,53 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Apr 26 14:15:37 2024
+[*]
+[dumpfile] "/home/mogata/MESTPro/program_runs/prog1/functional_verification/presynthesis.vcd"
+[dumpfile_mtime] "Fri Apr 26 13:56:30 2024"
+[dumpfile_size] 11594
+[savefile] "/home/mogata/MESTPro/waveform_config.gtkw"
+[timestart] 0
+[size] 2560 1513
+[pos] -27 -24
+*-18.741007 722000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] mest_pro_tb.
+[treeopen] mest_pro_tb.DUT.
+[sst_width] 297
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 1037
+@28
+mest_pro_tb.DUT.clk
+@29
+mest_pro_tb.w_reset_n
+@22
+mest_pro_tb.DUT.instruction[31:0]
+@24
+mest_pro_tb.DUT.o_result[7:0]
+@28
+mest_pro_tb.DUT.jump
+mest_pro_tb.DUT.clk
+@200
+-Boot 
+@28
++{mest_pro_tb.DUT.i_rom_line_ready} mest_pro_tb.DUT.i_rom_line_ready
+mest_pro_tb.DUT.i_rom_end
+mest_pro_tb.DUT.u_mest_pro_ctrlr.boot
+@200
+-State Control
+@28
+mest_pro_tb.DUT.u_mest_pro_ctrlr.i_done_loading_rom
+mest_pro_tb.DUT.u_mest_pro_ctrlr.current_state[1:0]
+@22
+mest_pro_tb.DUT.prog_counter[15:0]
+mest_pro_tb.DUT.instruction[31:0]
+@28
+mest_pro_tb.DUT.o_all_done
+@200
+-Data
+@22
+mest_pro_tb.DUT.o_result[7:0]
+@28
+mest_pro_tb.DUT.o_carry
+[pattern_trace] 1
+[pattern_trace] 0

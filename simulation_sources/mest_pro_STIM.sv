@@ -21,21 +21,21 @@ end
 
 realtime delay;
 initial begin
-    o_reset_n =0;
     clk       =0;
     o_start   =0;
     o_memory_reset = 1;
-    #50
+    o_reset_n = 0;
+    #5
     o_memory_reset = 0;
     repeat(5) @(posedge clk);
-    o_reset_n =1;
+    o_reset_n = 1;
     repeat(5) @(posedge clk);
     o_start   =1;
     @(posedge clk);
     o_start   =0;
 
 
-	delay=50000;
+	delay=10000;
 	#(delay);
 	$display("Simulation timeout!");
 	$display("Done Simulation");

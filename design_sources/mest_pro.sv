@@ -8,6 +8,9 @@ module mest_pro#(
     input i_reset_n,
     input i_start,
     input i_memory_reset,
+    input [ INSTRUCTION_SIZE -1 : 0 ] i_rom_line,
+    input i_rom_line_ready,
+    input i_rom_end,
 
     // Outputs
     output [8-1 :0] o_result,
@@ -15,7 +18,8 @@ module mest_pro#(
     output o_carry,
     output o_zero_flag,
     output o_all_done,
-    output [ `OUTPUT_MEM_WIDTH -1 : 0 ] o_display
+    output [ `OUTPUT_MEM_WIDTH -1 : 0 ] o_display,
+    output o_next_rom_line
 );
 
 // State Machine wires 
@@ -25,10 +29,13 @@ wire idle_state;
 wire fetch_state;
 wire decode_state;
 wire execute_state;
+wire rom_load_complete;
+wire boot_state;
+wire[ INSTRUCTION_SIZE -1 : 0] rom_line_to_ram;
 
 wire [ `ADDR_BITS -1  :0] prog_counter;
-reg [INSTRUCTION_SIZE-1   :0] instruction;
-reg [INSTRUCTION_SIZE-1   :0] loadReg;
+reg [ INSTRUCTION_SIZE-1   :0] instruction;
+reg [ INSTRUCTION_SIZE-1   :0] loadReg;
 
 // Memory Components 
 
@@ -40,7 +47,7 @@ wire mm_select;
 reg[ `ADDR_BITS - 1 : 0] mm_addr;
 reg[ `DATA_BITS -1 : 0] mm_dat;
 
-wire [`INSTRUCTION_SIZE-1 :0] decode_reg;
+wire [ INSTRUCTION_SIZE-1 :0 ] decode_reg;
 wire [ `OPCODE_SIZE - 1 :0 ] op_code  ; 
 wire [ `CONSTANT_K_SIZE -1 :0 ] const_K  ; 
 wire [ `OPERANDA_SIZE - 1 :0 ] operand_a; 
@@ -48,6 +55,7 @@ wire [ `OPERANDB_SIZE - 1 :0 ] operand_b;
 wire jump;
 wire return_pc;
 
+initial $monitor("rom_end: %b rom_ready_ %b rom_line %h wire: %h", i_rom_end, i_rom_line_ready, i_rom_line, rom_line_to_ram);
 
 // Local Global Registers
 reg [ `OUTPUT_MEM_WIDTH - 1:0 ] output_buffer;
@@ -56,12 +64,30 @@ reg [ `DATA_BITS-1:0 ] REGA;
 
 assign o_valid_result = exec_done;
 
+// This is the module that loads the rom from an external rom STIM files
+rom_ctrl #(
+    .INSTRUCTION_SIZE (INSTRUCTION_SIZE)
+) u_rom_ctrl (
+   .clk (clk),
+   .reset (i_reset_n),
+   .boot_state( boot_state ),
+   .i_rom_line_ready (i_rom_line_ready),
+   .i_rom_line ( i_rom_line ),
+   .i_rom_end (i_rom_end),
+   .o_next_rom_line_pls (o_next_rom_line),
+   .o_rom_line( rom_line_to_ram ),
+   .o_rom_load_complete( rom_load_complete ),
+   .o_memory_write_enable( mm_we )
+);
+
 mest_pro_ctrlr
 u_mest_pro_ctrlr(
     .clk           (clk          ),
     .i_reset_n     (i_reset_n    ),
     .i_start       (i_start      ),
     .i_end_of_code (end_of_code  ),
+    .i_done_loading_rom( rom_load_complete ),
+    .o_boot_state( boot_state),
     .o_idle        (idle_state   ),
     .o_fetch       (fetch_state  ),
     .o_decode      (decode_state ),
@@ -123,16 +149,18 @@ u_mest_pro_exec(
     .o_we( mm_we )
 );
 
-TOP_MESTProMem3 my_mest_pro_memory
+mest_pro_memory my_mest_pro_memory
 (
     .CLK            (clk            ),
+    .boot (boot_state),
     .i_prog_counter ( prog_counter),
     .i_mm_select    ( mm_select ),
     .addr           ( mm_addr ),
     .in_dat         ( mm_dat    ),
     .WE             ( mm_we           ),
     .CS             ( mm_cs           ),
-    .RESET          ( i_memory_reset        ),
+    //.reset          ( i_memory_reset        ),// changing this 
+    .reset          ( i_reset_n ),
     .o_inst         (instruction),
     .o_dat          (loadReg),
     .ERROR          ( ERROR)

@@ -21,15 +21,18 @@
 
 `include "param.vh"
 
-module TOP_MESTProMem3(
+module mest_pro_memory(
 input wire CLK,
+input wire boot,
+input wire i_rom_line_ready,
+
 input wire [`ADDR_BITS - 1 :0 ] i_prog_counter,
 input wire [`ADDR_BITS - 1:0] addr,
 input wire [`DATA_BITS - 1:0] in_dat,
 
 input wire WE,
 input wire CS,
-input wire RESET,
+input wire reset,
 input wire i_mm_select,
 output reg [`INSTRUCTION_SIZE-1:0] o_inst,
 output reg [`INSTRUCTION_SIZE-1:0] o_dat,
@@ -37,32 +40,19 @@ output reg ERROR
 );
 
 reg [`INSTRUCTION_SIZE-1:0] mem[`MEM_SIZE-1:0];
-integer i;
+reg[ $clog2(`ROM_SIZE) - 1 : 0] boot_ptr;
 
-initial
+always @(posedge CLK or posedge reset)
 begin
-
-//o_dat = `INSTRUCTION_SIZE'd0;
-
-ERROR = 1'b0;
- // for (i=0;i<`MEM_SIZE; i=i+1) begin
-		 // mem[i] = `INSTRUCTION_SIZE'd0;
-                // end
-
-$readmemb(`ROM_FILE, mem, 0, `ROM_SIZE-1 ); 
-
-end 
-
-always @(posedge CLK)
-begin
-    if (RESET) begin
+    if (~reset) begin
         o_dat = `INSTRUCTION_SIZE'b0;
         ERROR = 1'b0;
-        // for (i=`ROM_SIZE;i<`MEM_SIZE; i=i+1) begin 
-          // mem[i] = `INSTRUCTION_SIZE'd0;
-        // end	
+        boot_ptr = 0;
+    end else if ( boot && i_rom_line_ready) begin
+        mem[boot_ptr] = in_dat;
+        boot_ptr = boot_ptr + 1;
     end
-        else begin
+    else begin
             if ( CS ) begin
                 o_inst = mem[i_prog_counter];
             end            
